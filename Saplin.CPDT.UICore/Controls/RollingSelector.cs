@@ -70,17 +70,22 @@ namespace Saplin.CPDT.UICore.Controls
             if (!control.clickAssigned)
             {
                 control.clickAssigned = true;
-                control.Clicked += (s, e) =>
-                {
-                    if (control.count != 0)
-                    {
-                        if (control.selectedIndex + 1 == control.count) control.selectedIndex = 0; else control.selectedIndex++;
-
-                        control.Text = (newValue as KeyValue[])[control.selectedIndex].Value;
-                        control.SelectedItemKey = (newValue as KeyValue[])[control.selectedIndex].Key;
-                    }
-                };
+                control.Clicked += (s, e) => control.Step(1);
             }
+        }
+
+        // Android TV: move the focused setting with the left/right remote keys.
+        // The existing tap interaction continues to call Step(1).
+        public void Step(int direction)
+        {
+            var values = Items == null ? null : Items.ToArray();
+            if (values == null || values.Length == 0 || direction == 0) return;
+
+            UpdateSelectedIndex();
+            if (selectedIndex >= values.Length) selectedIndex = 0;
+            selectedIndex = (selectedIndex + (direction < 0 ? -1 : 1) + values.Length) % values.Length;
+            Text = values[selectedIndex].Value;
+            SelectedItemKey = values[selectedIndex].Key;
         }
 
         public IEnumerable<KeyValue> Items
