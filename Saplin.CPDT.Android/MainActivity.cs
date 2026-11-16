@@ -18,6 +18,11 @@ namespace Saplin.CPDT.Droid
 
         public override bool OnKeyDown(Keycode keyCode, KeyEvent e)
         {
+            // Holding OK must not start the same disk test repeatedly.
+            if (e != null && e.RepeatCount > 0 &&
+                (keyCode == Keycode.DpadCenter || keyCode == Keycode.Enter ||
+                 keyCode == Keycode.NumpadEnter)) return true;
+
             if (tvNavigation.Handle(keyCode)) return true;
             return base.OnKeyDown(keyCode, e);
         }
@@ -67,6 +72,12 @@ namespace Saplin.CPDT.Droid
                 }
             }
             catch { };
+        }
+
+        protected override void OnPause()
+        {
+            tvNavigation.Reset();
+            base.OnPause();
         }
 
         protected override void OnStart()
