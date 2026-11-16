@@ -27,6 +27,21 @@ namespace Saplin.CPDT.Droid
                 return false;
             }
 
+            // The online results database contains a native WebView. Let Android
+            // dispatch remote keys to the WebView instead of activating hidden
+            // controls from the underlying main screen.
+            if (ViewModelContainer.ResultsDbViewModel.IsVisible)
+            {
+                Reset();
+                return false;
+            }
+
+            if (key != Keycode.DpadUp && key != Keycode.DpadDown &&
+                key != Keycode.DpadLeft && key != Keycode.DpadRight &&
+                key != Keycode.DpadCenter && key != Keycode.Enter &&
+                key != Keycode.NumpadEnter)
+                return false;
+
             var items = new List<VisualElement>();
             Collect(page, items);
             if (items.Count == 0)
