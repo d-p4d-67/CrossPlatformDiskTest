@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Android.Views;
 using Xamarin.Forms;
 using Saplin.CPDT.UICore;
@@ -20,6 +19,13 @@ namespace Saplin.CPDT.Droid
         {
             var page = Xamarin.Forms.Application.Current?.MainPage;
             if (page == null) return false;
+
+            // Android keeps Back semantics (close dialog / navigate back).
+            if (key == Keycode.Back || key == Keycode.Escape)
+            {
+                Reset();
+                return false;
+            }
 
             var items = new List<VisualElement>();
             Collect(page, items);
@@ -104,13 +110,14 @@ namespace Saplin.CPDT.Droid
                 if (popup != null)
                 {
                     Collect(popup, controls);
-                    return;
                 }
+                // Never activate the page behind a modal dialog.
+                return;
             }
 
             var button = root as Button;
             var label = root as ExtendedLabel;
-            if ((button != null && button.Command != null) || label != null)
+            if ((button != null && (button.Command != null || button.IsEnabled)) || label != null)
                 controls.Add(root);
 
             var layout = root as Layout<Xamarin.Forms.View>;
@@ -197,7 +204,9 @@ namespace Saplin.CPDT.Droid
         private void ClearSelection()
         {
             if (selected == null) return;
-            selected.BackgroundColor = originalBackground;
+            // A control can be disposed or detached during a page transition.
+            try { selected.BackgroundColor = originalBackground; }
+            catch (ObjectDisposedException) { }
             selected = null;
         }
 
