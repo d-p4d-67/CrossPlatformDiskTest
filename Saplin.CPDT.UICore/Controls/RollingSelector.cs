@@ -62,11 +62,11 @@ namespace Saplin.CPDT.UICore.Controls
 
             if (!string.IsNullOrEmpty(selectedKey))
             {
-                if (!((IEnumerable<KeyValue>)control.Items).Any(kv => kv.Key.ToLower() == selectedKey as string))
+                if (!control.Items.Any(kv => string.Equals(kv.Key, selectedKey, StringComparison.OrdinalIgnoreCase)))
                     throw new InvalidOperationException("Can't select key which is not presetn as key in Items collection");
 
                 control.Text = ((IEnumerable<KeyValue>)control.Items)
-                    .Where(kv => kv.Key.ToLower() == selectedKey)
+                    .Where(kv => string.Equals(kv.Key, selectedKey, StringComparison.OrdinalIgnoreCase))
                     .Select<KeyValue, string>(kv => kv.Value as string)
                     .Single();
 
@@ -131,7 +131,7 @@ namespace Saplin.CPDT.UICore.Controls
             var value = newValue is string ? (newValue as string).ToLower() : string.Empty;
 
             //TODO check unique keys
-            if (!((IEnumerable<KeyValue>)control.Items).Any(kv => kv.Key == value))
+            if (!control.Items.Any(kv => string.Equals(kv.Key, value, StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidOperationException("Can't select key which is not presetn as key in Items collection");
 
             if (string.IsNullOrEmpty(value))
@@ -140,7 +140,7 @@ namespace Saplin.CPDT.UICore.Controls
             }
 
             control.Text = ((IEnumerable<KeyValue>)control.Items)
-                .Where(kv => kv.Key == value as string)
+                .Where(kv => string.Equals(kv.Key, value, StringComparison.OrdinalIgnoreCase))
                 .Select<KeyValue, string>(kv => kv.Value as string)
                 .Single();
 
