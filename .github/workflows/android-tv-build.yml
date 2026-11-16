@@ -1,0 +1,57 @@
+name: Experimental Android TV APK build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Set up NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Check for legacy Xamarin.Android support
+        shell: pwsh
+        run: |
+          $targets = Get-ChildItem "${env:ProgramFiles(x86)}\Microsoft Visual Studio" -Filter Xamarin.Android.CSharp.targets -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $targets) {
+            throw "This Windows runner does not have the retired Xamarin.Android MSBuild targets. Build on a Windows machine with Visual Studio Xamarin.Android installed or migrate the project to .NET for Android."
+          }
+          Write-Host "Found Xamarin.Android targets: $($targets.FullName)"
+
+      - name: Restore NuGet packages
+        run: nuget restore CrossPlatformDiskTest.sln -NonInteractive
+
+      - name: Build universal Release APK
+        run: msbuild Saplin.CPDT.Android\Saplin.CPDT.Android.csproj /t:SignAndroidPackage /p:Configuration=Release /p:Platform=AnyCPU /p:AndroidSupportedAbis="armeabi-v7a;arm64-v8a" /v:minimal
+
+      - name: Inspect APK ABIs
+        shell: pwsh
+        run: |
+          $apk = Get-ChildItem Saplin.CPDT.Android\bin\Release -Recurse -Filter *.apk | Select-Object -First 1
+          if (-not $apk) { throw "No APK was produced" }
+          Add-Type -AssemblyName System.IO.Compression
+          $zip = [System.IO.Compression.ZipFile]::OpenRead($apk.FullName)
+          try {
+            $names = @($zip.Entries | ForEach-Object FullName)
+            foreach ($abi in @("armeabi-v7a", "arm64-v8a")) {
+              if (-not @($names | Where-Object { $_ -like "lib/$abi/*" }).Count) {
+                throw "Missing native libraries for $abi"
+              }
+              Write-Host "Verified libraries for $abi"
+            }
+          } finally {
+            $zip.Dispose()
+          }
+
+      - name: Upload experimental APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpdt-tv-universal-unsigned-or-debug
+          path: Saplin.CPDT.Android/bin/Release/**/*.apk
+          if-no-files-found: error
