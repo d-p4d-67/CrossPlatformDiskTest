@@ -5,6 +5,7 @@ using Android.Views;
 using Xamarin.Forms;
 using Saplin.CPDT.UICore;
 using Saplin.CPDT.UICore.Controls;
+using Saplin.CPDT.UICore.ViewModels;
 
 // First-stage Android TV navigation. Works with the existing Xamarin.Forms controls
 // without changing the disk-test engine or the Android minimum SDK.
