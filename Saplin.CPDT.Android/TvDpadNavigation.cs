@@ -50,6 +50,13 @@ namespace Saplin.CPDT.Droid
                 return true;
             }
 
+            var selector = selected as RollingSelector;
+            if (selector != null && (key == Keycode.DpadLeft || key == Keycode.DpadRight))
+            {
+                selector.Step(key == Keycode.DpadLeft ? -1 : 1);
+                return true;
+            }
+
             var source = Center(selected);
             VisualElement next = null;
             double best = double.PositiveInfinity;
@@ -106,7 +113,7 @@ namespace Saplin.CPDT.Droid
             if ((button != null && button.Command != null) || label != null)
                 controls.Add(root);
 
-            var layout = root as Layout<View>;
+            var layout = root as Layout<Xamarin.Forms.View>;
             if (layout != null)
                 foreach (var child in layout.Children) Collect(child, controls);
 
@@ -122,11 +129,15 @@ namespace Saplin.CPDT.Droid
 
         private static VisualElement FindVisiblePopup(VisualElement root)
         {
-            var layout = root as Layout<View>;
+            var layout = root as Layout<Xamarin.Forms.View>;
             if (layout == null)
             {
                 var page = root as ContentPage;
-                return page?.Content == null ? null : FindVisiblePopup(page.Content);
+                if (page?.Content != null) return FindVisiblePopup(page.Content);
+                var content = root as ContentView;
+                if (content?.Content != null) return FindVisiblePopup(content.Content);
+                var scroll = root as ScrollView;
+                return scroll?.Content == null ? null : FindVisiblePopup(scroll.Content);
             }
 
             foreach (var child in layout.Children)
