@@ -71,6 +71,9 @@ check("Keycode.Back" in nav, "Back key retains Android fallback")
 check("selector.Step(" in nav and "public void Step(int direction)" in selector,
       "Left/right selector navigation exists")
 check("IsAnyPopupVisible" in nav, "Modal overlay handling is present")
+check("ResultsDbViewModel.IsVisible" in nav and "Reset();" in nav,
+      "D-pad does not activate controls behind online results")
+check("e.RepeatCount > 0" in main, "Held OK cannot activate a disk test repeatedly")
 
 print("\nThis is a source/configuration check only, not a compiled APK.")
 if errors:
