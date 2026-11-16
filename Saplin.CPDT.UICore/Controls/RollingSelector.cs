@@ -39,9 +39,10 @@ namespace Saplin.CPDT.UICore.Controls
 
             var selectedKey = !string.IsNullOrEmpty(SelectedItemKey) ? SelectedItemKey.ToLower() : string.Empty;
 
+            if (Items == null) return;
             foreach (var kv in Items)
             {
-                if (kv.Key.ToLower() == selectedKey) break;
+                if (string.Equals(kv.Key, selectedKey, StringComparison.OrdinalIgnoreCase)) break;
                 selectedIndex++;
             }
         }
@@ -51,6 +52,11 @@ namespace Saplin.CPDT.UICore.Controls
             var control = bindable as RollingSelector;
 
             if (newValue == null) control.count = 0; else control.count = (newValue as KeyValue[]).Length;
+            if (control.count == 0)
+            {
+                control.Text = string.Empty;
+                return;
+            }
 
             var selectedKey = !string.IsNullOrEmpty(control.SelectedItemKey) ? control.SelectedItemKey.ToLower() : string.Empty;
 
