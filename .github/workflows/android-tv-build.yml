@@ -2,6 +2,9 @@ name: Experimental Android TV APK build
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/android-tv-dpad
 
 jobs:
   build-android:
@@ -28,7 +31,7 @@ jobs:
         run: nuget restore CrossPlatformDiskTest.sln -NonInteractive
 
       - name: Build universal Release APK
-        run: msbuild Saplin.CPDT.Android\Saplin.CPDT.Android.csproj /t:SignAndroidPackage /p:Configuration=Release /p:Platform=AnyCPU /p:AndroidSupportedAbis="armeabi-v7a;arm64-v8a" /v:minimal
+        run: msbuild Saplin.CPDT.Android\Saplin.CPDT.Android.csproj /t:SignAndroidPackage /p:Configuration=Release /p:Platform=AnyCPU /p:AndroidSupportedAbis=armeabi-v7a%3Barm64-v8a /v:minimal
 
       - name: Inspect APK ABIs
         shell: pwsh
