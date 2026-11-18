@@ -83,7 +83,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="Saplin.StorageSpeedMeter">
-      <HintPath>..\..\NetCoreStorageSpeedTest\Saplin.StorageSpeedMeter\bin\Debug\netstandard2.0\Saplin.StorageSpeedMeter.dll</HintPath>
+      <HintPath Condition="'$(Configuration)'=='Debug'">..\..\NetCoreStorageSpeedTest\Saplin.StorageSpeedMeter\bin\Debug\netstandard2.0\Saplin.StorageSpeedMeter.dll</HintPath>
+      <HintPath Condition="'$(Configuration)'=='Release'">..\References\Saplin.StorageSpeedMeter.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +97,7 @@
     <Compile Include="FreeMemory.cs" />
     <Compile Include="KeepScreenOn.cs" />
     <Compile Include="MainActivity.cs" />
+    <Compile Include="TvDpadNavigation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AndroidDrives.cs" />
     <Compile Include="GetSystemLocale.cs" />

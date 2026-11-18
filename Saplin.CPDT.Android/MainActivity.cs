@@ -14,6 +14,28 @@ namespace Saplin.CPDT.Droid
     {
         public static MainActivity Instance { get; protected set; }
 
+        private readonly TvDpadNavigation tvNavigation = new TvDpadNavigation();
+
+        public override bool OnKeyDown(Keycode keyCode, KeyEvent e)
+        {
+            // Holding OK must not start the same disk test repeatedly.
+            if (e != null && e.RepeatCount > 0 &&
+                (keyCode == Keycode.DpadCenter || keyCode == Keycode.Enter ||
+                 keyCode == Keycode.NumpadEnter)) return true;
+
+            if (tvNavigation.Handle(keyCode)) return true;
+            return base.OnKeyDown(keyCode, e);
+        }
+
+        public override bool OnKeyUp(Keycode keyCode, KeyEvent e)
+        {
+            if (keyCode == Keycode.DpadUp || keyCode == Keycode.DpadDown ||
+                keyCode == Keycode.DpadLeft || keyCode == Keycode.DpadRight ||
+                keyCode == Keycode.DpadCenter || keyCode == Keycode.Enter ||
+                keyCode == Keycode.NumpadEnter) return true;
+            return base.OnKeyUp(keyCode, e);
+        }
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -50,6 +72,12 @@ namespace Saplin.CPDT.Droid
                 }
             }
             catch { };
+        }
+
+        protected override void OnPause()
+        {
+            tvNavigation.Reset();
+            base.OnPause();
         }
 
         protected override void OnStart()

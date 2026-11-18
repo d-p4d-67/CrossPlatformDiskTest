@@ -1,0 +1,28 @@
+name: Android TV source checks
+
+on:
+  push:
+    branches:
+      - feature/android-tv-dpad
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  verify-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Android TV source and Android packaging settings
+        run: python3 scripts/verify_android_tv.py
+
+  compile-ui-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Compile shared Xamarin.Forms UI library (not Android APK)
+        run: dotnet build Saplin.CPDT.UICore/Saplin.CPDT.UICore.csproj --configuration Release --verbosity minimal
